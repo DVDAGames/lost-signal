@@ -1,0 +1,10 @@
+{
+  "version": "v1",
+  "packages": {
+    "@interwebalchemy/ciph3r-text": {
+      "signature": "e5a0dbd411323a48a1c3e9b060479b8f",
+      "file": true,
+      "replaced": "^1.1.0"
+    }
+  }
+}
