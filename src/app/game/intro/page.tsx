@@ -1,10 +1,11 @@
 import Screen from "@/components/Screen";
-import Terminal from "@/components/Terminal";
 
 export default function IntroPage(): React.ReactElement {
   return (
     <Screen>
-      <Terminal />
+      <div className="flex flex-col items-center justify-center h-full w-full">
+        Intro
+      </div>
     </Screen>
   );
 }

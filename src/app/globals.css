@@ -13,11 +13,50 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@theme {
+  --animate-fade-in: fade 0.5s ease-in-out forwards;
+  --animate-fade-out: fade 0.5s ease-in-out backwards;
+
+  --animate-fade-in-quick: fade-quick 0.5s ease-in-out forwards;
+  --animate-fade-out-quick: fade-quick 0.5s ease-in-out backwards;
+
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-quick {
+    0% {
+      opacity: 0;
+    }
+    25% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 0.75;
+    }
+    75%,
+    100% {
+      opacity: 1;
+    }
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
+}
+
+html,
+body {
+  height: 100vh;
+  width: 100vw;
 }
 
 body {

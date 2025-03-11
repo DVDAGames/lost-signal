@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { useInterval, useTimeout } from "usehooks-ts";
 import Ciph3rText from "@interwebalchemy/ciph3r-text";
 import { generateCharacterSet } from "@/utils/generateCharacterSet";
@@ -96,7 +96,7 @@ export default function Title(): React.ReactElement {
         setSubtitleTargetText(SUBTITLE_DEFAULT_TEXT);
       }
     },
-    isAnimating ? (wasEncodedOnce ? 4000 : 2200) : null
+    isAnimating ? (wasEncodedOnce ? 4000 : 2000) : null
   );
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -143,33 +143,59 @@ export default function Title(): React.ReactElement {
       if (subtitleAction === "scramble") {
         // break subtitleDefaultText into an array of chunks of random sizes
         // but don't exceed the original length of subtitleDefaultText
+        const words = subtitleDefaultText.split(" ");
         const chunks = [];
-        let i = 0;
 
-        while (i < subtitleDefaultText.length) {
-          const chunk = subtitleDefaultText.slice(
-            i,
-            i + Math.floor(Math.random() * 10)
-          );
+        for (let i = 0; i < words.length; i++) {
+          let j = 0;
+          const word = words[i];
 
-          chunks.push({
-            chunk,
-            color: colors[Math.floor(Math.random() * colors.length)],
-          });
+          console.log("WORD:", word, word.length);
+          console.log("INDEX:", i);
 
-          i += chunk.length;
+          while (j < word.length) {
+            const chunkLength = Math.floor(
+              Math.random() * (word.length - (j + 1)) + 1
+            );
+            const chunk = word.slice(j, j + chunkLength);
+
+            console.log("CHUNK:", chunk, chunkLength);
+
+            chunks.push({
+              chunk,
+              color: colors[Math.floor(Math.random() * colors.length)],
+              position:
+                i === 0
+                  ? "start"
+                  : j + chunkLength >= word.length
+                  ? "end"
+                  : "middle",
+            });
+
+            j += chunkLength;
+          }
         }
 
-        return chunks.map(({ chunk, color }, index) => (
-          <Ciph3rText
-            key={index}
-            defaultText={chunk}
-            action={"scramble"}
-            iterationSpeed={subtitleIterationSpeed}
-            className={color}
-            characters={SUBTITLE_CHARACTER_SET}
-          />
-        ));
+        return chunks.map(({ chunk, color, position }, index) => {
+          console.log("CHUNK:", chunk, chunk.length);
+          console.log("POSITION:", position);
+
+          return (
+            <Fragment key={`${chunk}-${index}`}>
+              <Ciph3rText
+                key={index}
+                defaultText={chunk}
+                action={"scramble"}
+                iterationSpeed={subtitleIterationSpeed}
+                className={color}
+                characters={SUBTITLE_CHARACTER_SET}
+              />
+              {position === "end" && index < chunks.length - 1 && (
+                <span className="text-gray-500">&nbsp;</span>
+              )}
+            </Fragment>
+          );
+        });
       } else {
         return (
           <Ciph3rText
@@ -228,8 +254,8 @@ export default function Title(): React.ReactElement {
       >
         {renderSubtitle()}
       </div>
-      <div className="absolute bottom-20 flex flex-row items-center justify-center text-sm font-mono">
-        Press [<kbd>ENTER</kbd>] to play.
+      <div className="absolute bottom-20 flex flex-row items-center justify-center text-sm font-mono text-gray-500">
+        Press [<kbd className="text-white">ENTER</kbd>] to play.
       </div>
     </div>
   );
