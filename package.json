@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@interwebalchemy/ciph3r-text": "file:.yalc/@interwebalchemy/ciph3r-text",
+    "@interwebalchemy/ciph3r-text": "^1.1.0",
     "@tabler/icons-react": "^3.31.0",
     "@uidotdev/usehooks": "^2.4.1",
     "next": "15.2.1",
