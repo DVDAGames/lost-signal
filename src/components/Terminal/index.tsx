@@ -1,20 +1,23 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useClickAway } from "@uidotdev/usehooks";
 import Ciph3rText from "@interwebalchemy/ciph3r-text";
 
 import { COMMANDS, COMMAND_MAP, CommandName } from "./commands";
+import { useSignal } from "@/context/SignalContext";
 
 import "./terminal.css";
 
 export interface TerminalProps {
-  open: boolean;
-  toggleTerminal: () => void;
+  open?: boolean;
+  locked?: boolean;
+  toggleTerminal?: () => void;
 }
 
 export default function Terminal({
-  open,
+  open = false,
+  locked = false,
   toggleTerminal,
 }: TerminalProps): React.ReactElement {
   const [command, setCommand] = useState<string>("");
@@ -26,10 +29,11 @@ export default function Terminal({
   const [displayCommandOutput, setDisplayCommandOutput] = useState<string[]>(
     []
   );
+  const { activeSignal, setActiveSignal, signals, updateSignal } = useSignal();
 
   const terminalRef = useClickAway<HTMLDivElement>(() => {
     if (open) {
-      toggleTerminal();
+      toggleTerminal?.();
     }
   });
 
@@ -52,6 +56,23 @@ export default function Terminal({
       setCommandOutput([]);
       setDisplayCommand("");
       setDisplayCommandOutput([]);
+    } else if (command.startsWith("decode")) {
+      const signalId = command.split(" ")[1].replace("#", "");
+
+      const signal = signals.find((s) => s.id === signalId);
+
+      if (signal) {
+        updateSignal({
+          ...signal,
+          isDecoding: true,
+        });
+
+        setActiveSignal(signal);
+
+        setDisplayCommandOutput(["Decoding signal..."]);
+      } else {
+        setDisplayCommandOutput(["ERROR", `Signal ${signalId} not found`]);
+      }
     } else {
       if (
         typeof COMMAND_MAP?.[thisCommand as CommandName]?.handler ===
@@ -75,7 +96,7 @@ export default function Terminal({
 
         if (newOutput) {
           setDisplayCommand(command);
-          setDisplayCommandOutput([newOutput]);
+          setDisplayCommandOutput(newOutput.split(" "));
         }
       } else if (
         typeof COMMAND_MAP?.[thisCommand as CommandName] === "undefined"
@@ -93,13 +114,6 @@ export default function Terminal({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCommand(e.target.value as CommandName);
-  };
-
-  const handleGlobalKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "`") {
-      e.preventDefault();
-      toggleTerminal();
-    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -146,7 +160,7 @@ export default function Terminal({
           // TODO: fix how this is handled at some point - it seems to work once and then fail
           if (hintParts.length > 0) {
             switch (hintParts[0]) {
-              case "<command>":
+              case "<command>": {
                 const commandSuggestions = COMMANDS.filter((c) =>
                   c.name.startsWith(commandParts[0])
                 ).map((c) => c.name);
@@ -162,7 +176,27 @@ export default function Terminal({
                       commandSuggestions[0]
                   );
                 }
+
                 break;
+              }
+
+              case "#<signal>": {
+                setCommand(command + "#");
+
+                const commandSuggestions = signals.map((s) => s.id);
+
+                console.log(commandSuggestions);
+
+                if (commandSuggestions.length > 1) {
+                  setCommandUsageHint(commandSuggestions);
+                } else {
+                  setCommandUsageHint([]);
+                  setCommand(command + "#" + commandSuggestions[0]);
+                }
+
+                break;
+              }
+
               default:
                 break;
             }
@@ -218,7 +252,9 @@ export default function Terminal({
           {line.map((l, i) => (
             <span
               key={`${index}-${i}`}
-              className={`text-md${l.includes("ERROR") ? " text-red-500" : ""}`}
+              className={`text-md mr-2${
+                l.includes("ERROR") ? " text-red-500" : ""
+              }`}
             >
               {l}
             </span>
@@ -229,12 +265,21 @@ export default function Terminal({
   };
 
   useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (!locked) {
+        if (e.key === "`") {
+          e.preventDefault();
+          toggleTerminal?.();
+        }
+      }
+    };
+
     document.addEventListener("keyup", handleGlobalKeyDown);
 
     return () => {
       document.removeEventListener("keyup", handleGlobalKeyDown);
     };
-  }, []);
+  }, [locked]);
 
   useEffect(() => {
     if (!command) {
@@ -246,7 +291,7 @@ export default function Terminal({
     <div
       ref={terminalRef}
       id="terminal"
-      className={`flex flex-col items-start justify-start border-2 border-gray-300 font-mono text-emerald-600 rounded-md p-2 h-[45vh] w-[100vw]${
+      className={`z-50 flex flex-col items-start justify-start bg-gray-900 border-2 border-gray-300 font-mono text-emerald-600 rounded-md p-2 h-[45vh] w-[100vw]${
         open ? " open" : ""
       }`}
     >

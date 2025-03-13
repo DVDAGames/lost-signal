@@ -46,7 +46,7 @@ const SUBTITLE_CHARACTER_SET = generateCharacterSet([
 ]);
 
 // const MAIN_TITLE_DEFAULT_TEXT = ANAGRAMS[0];
-const SUBTITLE_DEFAULT_TEXT = "A STORY OF SIGNALS AND LOSS.";
+const SUBTITLE_DEFAULT_TEXT = "A GAME OF SIGNALS AND LOSS.";
 
 export default function Title(): React.ReactElement {
   const router = useRouter();
@@ -232,7 +232,7 @@ export default function Title(): React.ReactElement {
   };
 
   return (
-    <div className="flex flex-col w-screen items-center justify-center h-screen">
+    <div className="flex flex-col w-screen items-center justify-center h-screen bg-neutral-950">
       <div
         className={`relative flex flex-col items-center justify-start text-4xl w-full`}
       >

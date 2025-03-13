@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { unstable_ViewTransition as ViewTransition } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 
+import { NotificationProvider } from "@/context/NotificationContext";
+import { SignalProvider } from "@/context/SignalContext";
+
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,7 +33,11 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ViewTransition>{children}</ViewTransition>
+        <ViewTransition>
+          <NotificationProvider>
+            <SignalProvider>{children}</SignalProvider>
+          </NotificationProvider>
+        </ViewTransition>
       </body>
     </html>
   );

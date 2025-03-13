@@ -34,14 +34,9 @@ export const COMMANDS: Command[] = [
     description: "Scan for signals",
   },
   {
-    name: "listen",
-    description: "Listen to a signal",
-    usage: "listen <signal>",
-  },
-  {
     name: "decode",
     description: "Decode a signal",
-    usage: "decode <signal>",
+    usage: "decode #<signal>",
   },
 ];
 

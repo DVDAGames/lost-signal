@@ -32,8 +32,8 @@ export const ESOTERIC_CHARACTERS = {
 
 export const TEXT_COLORS = [
   "text-gray-500",
-  "text-cyan-700",
-  "text-emerald-800",
-  "text-pink-300",
+  "text-cyan-600",
   "text-teal-500",
+  "text-amber-500",
+  "text-fuchsia-500",
 ];

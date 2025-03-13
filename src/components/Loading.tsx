@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { useInterval } from "usehooks-ts";
@@ -19,18 +19,14 @@ import {
 const LOADING_COUNT_INTERVAL = 1000;
 const LOADING_COUNT_MAX = 4;
 
-export default function Loading({
-  next,
-}: {
-  next: string;
-}): React.ReactElement {
+export default function Loading(): React.ReactElement {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const next = searchParams.get("next");
 
   const [isLoading, setIsLoading] = useState(true);
   const [loadingCount, setLoadingCount] = useState(0);
-  const [hasPermission, setHasPermission] = useState(
-    Notification.permission === "granted"
-  );
 
   const isVisible = useVisibilityChange();
 
@@ -56,23 +52,6 @@ export default function Loading({
       setIsLoading(false);
     }
   }, [loadingCount]);
-
-  useEffect(() => {
-    if (Notification.permission !== "granted") {
-      Notification.requestPermission()
-        .then((permission) => {
-          if (permission === "granted") {
-            new Notification("Okay, let's get started.");
-            setHasPermission(true);
-          } else {
-            setHasPermission(false);
-          }
-        })
-        .catch((error) => {
-          console.error("Error requesting notification permission:", error);
-        });
-    }
-  }, []);
 
   const renderLoadingText = (): React.ReactNode[] => {
     return chunkText(
@@ -111,18 +90,7 @@ export default function Loading({
             <button
               className="flex flex-row w-full h-full px-5 items-center appearance-none cursor-pointer justify-start hover:bg-amber-600 rounded-sm bg-transparent transition-all duration-300 ease-in-out"
               onClick={() => {
-                console.log("clicked");
-                if (hasPermission) {
-                  new Notification("Okay, let's get started.");
-                  router.push(`/game/${next}`);
-                } else {
-                  Notification.requestPermission().then((permission) => {
-                    if (permission === "granted") {
-                      setHasPermission(true);
-                      new Notification("Okay, let's get started.");
-                    }
-                  });
-                }
+                router.push(`/game/${next}`);
               }}
             >
               <>
@@ -139,12 +107,6 @@ export default function Loading({
           )}
         </div>
       </div>
-      {!hasPermission && (
-        <div className="text-sm text-gray-500 mt-8">
-          For a more immersive experience, this game is best enjoyed with
-          notifications enabled.
-        </div>
-      )}
     </div>
   );
 }
