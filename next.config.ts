@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   output: "export",
   trailingSlash: true,
   basePath: "/lost-signal",
+  assetPrefix: "/lost-signal",
   experimental: {
     viewTransition: true,
   },
